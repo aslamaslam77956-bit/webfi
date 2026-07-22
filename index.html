@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>I Love You ❤️</title>
+
+<style>
+
+:root{}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+overflow:hidden;
+background-position:bottom center;
+background-size:cover;
+background-repeat:no-repeat;
+background-attachment:fixed;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+position:relative;
+}
+
+/* remove dim overlay so background images remain fully visible */
+
+
+/* Matrix Canvas */
+
+canvas{
+position:fixed;
+top:0;
+left:0;
+z-index:-2;
+}
+
+/* Background layers used for smooth crossfade slideshow */
+.bg-layer{
+  position:fixed;
+  inset:0;
+  overflow:hidden;
+  pointer-events:none;
+  transition:opacity 1s ease-in-out;
+  will-change:opacity;
+  z-index:0;
+  opacity:0;
+}
+.bg-layer.active{ opacity:1; }
+
+.bg-inner{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center center;
+  transform-origin:center center;
+  transition:transform 5s ease, opacity 1s ease;
+  will-change:transform, opacity;
+  opacity:1;
+  display:block;
+}
+.zoomed{ transform: scale(1.06) translate3d(-1%, -1%, 0); }
+
+/* Heart Container */
+
+.heart-container{
+position:relative;
+width:420px;
+height:390px;
+display:flex;
+justify-content:center;
+align-items:center;
+animation:pulse 2s infinite;
+z-index:1;
+}
+
+/* SVG */
+
+svg{
+position:absolute;
+width:100%;
+height:100%;
+overflow:visible;
+}
+
+.heart-path{
+fill:none;
+stroke:#ff5da2;
+stroke-width:6;
+stroke-linecap:round;
+stroke-dasharray:10;
+filter:drop-shadow(0 0 10px hotpink)
+drop-shadow(0 0 25px deeppink);
+animation:borderMove 4s linear infinite;
+}
+
+/* Text */
+
+.text{
+position:absolute;
+text-align:center;
+color:white;
+z-index:10;
+}
+
+.text h1{
+font-size:34px;
+color:#ff5da2;
+text-shadow:
+0 0 8px hotpink,
+0 0 20px deeppink,
+0 0 40px hotpink;
+}
+.text p{
+margin-top:10px;
+font-size:20px;
+color:white;
+}
+
+.thumbs{ /* removed */ }
+
+/* Floating Hearts */
+
+.particle{
+position:absolute;
+color:#ff6ab7;
+font-size:18px;
+animation:floatUp linear infinite;
+pointer-events:none;
+}
+
+audio#bg-music{
+position:fixed;
+bottom:20px;
+left:50%;
+transform:translateX(-50%);
+z-index:10;
+background:rgba(0,0,0,0.5);
+border:1px solid #ff5da2;
+border-radius:12px;
+padding:8px 12px;
+box-shadow:0 0 20px rgba(255,93,162,0.35);
+}
+
+/* Responsive tweaks for phones */
+@media (max-width:600px){
+
+  body{ background-position:center center; }
+
+  .heart-container{
+    width:90vw;
+    height:60vh;
+  }
+
+  .text h1{ font-size:6vw; }
+  .text p{ font-size:4.2vw; }
+
+  .particle{ font-size:calc(12px + 1vw); }
+
+  audio#bg-music{
+    left:50%;
+    transform:translateX(-50%);
+    width:calc(100% - 40px);
+    max-width:420px;
+    padding:10px;
+    bottom:14px;
+    border-radius:10px;
+  }
+
+}
+
+/* Animations */
+
+@keyframes pulse{
+
+0%,100%{
+transform:scale(1);
+}
+
+50%{
+transform:scale(1.04);
+}
+
+}
+
+@keyframes borderMove{
+
+from{
+stroke-dashoffset:0;
+}
+
+to{
+stroke-dashoffset:-300;
+}
+
+}
+
+@keyframes floatUp{
+
+0%{
+opacity:0;
+transform:translateY(20px) scale(.4);
+}
+
+20%{
+opacity:1;
+}
+
+100%{
+opacity:0;
+transform:translateY(-500px) scale(1.6);
+}
+
+}
+
+</style>
+
+</head>
+<body>
+
+<!-- Background layers for slideshow (stacked below canvas) -->
+<div class="bg-layer bg-a active" id="bgA">
+  <img class="bg-inner" id="bgAInner" src="./rinu3.png" alt="" loading="eager" decoding="async">
+</div>
+<div class="bg-layer bg-b" id="bgB">
+  <img class="bg-inner" id="bgBInner" src="./rinu.png" alt="" loading="eager" decoding="async">
+</div>
+
+<audio id="bg-music" controls loop autoplay>
+  <source src="WhatsApp Video 2026-07-22 at 9.57.15 PM.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
+
+<canvas id="matrix"></canvas>
+
+<div class="heart-container">
+
+<svg viewBox="0 0 512 512">
+
+<path
+class="heart-path"
+d="M256 464
+L228 438
+C104 324
+24 250
+24 152
+24 82
+78 32
+144 32
+198 32
+236 64
+256 98
+276 64
+314 32
+368 32
+434 32
+488 82
+488 152
+488 250
+408 324
+284 438
+256 464"/>
+
+</svg>
+
+<div class="text">
+
+<h1>I Love ❤️ You 
+      rinuuuu
+</h1>
+
+<p>Forever in my heart</p>
+
+  </div>
+
+  </div>
+
+<script>
+
+// Slideshow background: list the three images here. Put the two new images
+// in the project root (suggested names: rinu.png and rinu1.png).
+const slideshowImages = ['./rinu3.png','./rinu.png','./rinu1.png'];
+
+const bgA = document.getElementById('bgA');
+const bgB = document.getElementById('bgB');
+
+function preloadImages(list){
+  return new Promise(resolve=>{
+    if(!list.length) return resolve();
+    let loaded = 0;
+    list.forEach(src=>{
+      const i=new Image();
+      i.onload = i.onerror = ()=>{ loaded++; if(loaded===list.length) resolve(); };
+      i.src = src;
+    });
+  });
+}
+
+const bgMusicEl = document.getElementById('bg-music');
+const audioReady = new Promise(resolve=>{
+  if(bgMusicEl && bgMusicEl.readyState >= 1 && bgMusicEl.duration){
+    resolve(bgMusicEl.duration);
+    return;
+  }
+  if(!bgMusicEl){ resolve(17); return; }
+  const onMeta = ()=>{ bgMusicEl.removeEventListener('loadedmetadata', onMeta); resolve(bgMusicEl.duration || 17); };
+  bgMusicEl.addEventListener('loadedmetadata', onMeta);
+  // fallback in case metadata is blocked
+  setTimeout(()=>{ resolve(bgMusicEl.duration || 17); }, 3000);
+});
+
+// start slideshow after preloading images and getting audio duration
+preloadImages(slideshowImages).then(()=> audioReady.then(durationSec=>{
+  const bgAInner = document.getElementById('bgAInner');
+  const bgBInner = document.getElementById('bgBInner');
+  let showingA = true;
+  let index = 0;
+
+  function setLayerImage(layer, src){
+    if(layer){
+      layer.src = src;
+      layer.alt = '';
+    }
+  }
+
+  // initialize backgrounds
+  setLayerImage(bgAInner, slideshowImages[0]);
+  bgA.classList.add('active');
+  bgB.classList.remove('active');
+  bgAInner.classList.add('zoomed');
+
+  // audio-driven peak detection (Web Audio API)
+  let analyser = null, audioCtx = null, source = null;
+  try{
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    source = audioCtx.createMediaElementSource(bgMusicEl);
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 2048;
+    source.connect(analyser);
+    analyser.connect(audioCtx.destination);
+  }catch(e){ analyser = null; }
+
+  const energyHistory = [];
+  let lastTriggerTime = -10;
+
+  function triggerNext(){
+    const nextIndex = (index + 1) % slideshowImages.length;
+    const nextSrc = slideshowImages[nextIndex];
+
+    if(showingA){
+      setLayerImage(bgBInner, nextSrc);
+      bgB.classList.add('active');
+      bgA.classList.remove('active');
+      bgBInner.classList.add('zoomed');
+      bgAInner.classList.remove('zoomed');
+    } else {
+      setLayerImage(bgAInner, nextSrc);
+      bgA.classList.add('active');
+      bgB.classList.remove('active');
+      bgAInner.classList.add('zoomed');
+      bgBInner.classList.remove('zoomed');
+    }
+    showingA = !showingA;
+    index = nextIndex;
+  }
+
+  function detectLoop(){
+    requestAnimationFrame(detectLoop);
+    if(!analyser || !bgMusicEl || bgMusicEl.paused) return;
+    const data = new Uint8Array(analyser.fftSize);
+    analyser.getByteTimeDomainData(data);
+    let sum = 0;
+    for(let i=0;i<data.length;i++){ const v = (data[i]-128)/128; sum += v*v; }
+    const instant = Math.sqrt(sum/data.length);
+    energyHistory.push(instant);
+    if(energyHistory.length>43) energyHistory.shift();
+    const avg = energyHistory.reduce((a,b)=>a+b,0)/energyHistory.length || 0.0001;
+    const now = bgMusicEl.currentTime || 0;
+    if(instant > avg * 1.6 && (now - lastTriggerTime) > 0.7){
+      triggerNext();
+      lastTriggerTime = now;
+    }
+  }
+
+  detectLoop();
+
+  // fallback timed advance in case peaks are not detected
+  const fallbackInterval = Math.max(1200, Math.round((durationSec * 1000) / slideshowImages.length));
+  const fallbackTimer = setInterval(()=>{ triggerNext(); }, fallbackInterval);
+
+  // stop fallback when audio pauses/stops
+  bgMusicEl.addEventListener('pause', ()=> clearInterval(fallbackTimer));
+  bgMusicEl.addEventListener('ended', ()=> clearInterval(fallbackTimer));
+}));
+
+// MATRIX EFFECT
+
+const canvas=document.getElementById("matrix");
+const ctx=canvas.getContext("2d");
+
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+
+const chars="I LOVE YOU ❤";
+
+const fontSize=18;
+
+const columns=Math.floor(canvas.width/fontSize);
+
+const drops=[];
+
+for(let i=0;i<columns;i++) drops[i]=1;
+
+function draw(){
+  // Clear each frame so the canvas doesn't build an opaque overlay
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  ctx.fillStyle = "#ff4fa5";
+  ctx.font = fontSize + "px monospace";
+  ctx.shadowColor = 'rgba(255,93,162,0.35)';
+  ctx.shadowBlur = 6;
+  ctx.globalCompositeOperation = 'source-over';
+
+  for (let i = 0; i < drops.length; i++) {
+    const text = chars[Math.floor(Math.random() * chars.length)];
+    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+      drops[i] = 0;
+    }
+
+    drops[i]++;
+  }
+
+}
+
+setInterval(draw, 40);
+
+// Floating Hearts
+
+function createHeart(){
+
+const heart=document.createElement("div");
+
+heart.className="particle";
+
+heart.innerHTML="❤";
+
+heart.style.left=Math.random()*window.innerWidth+"px";
+
+heart.style.top=window.innerHeight+"px";
+
+heart.style.fontSize=(10+Math.random()*28)+"px";
+
+heart.style.animationDuration=(4+Math.random()*5)+"s";
+
+document.body.appendChild(heart);
+
+setTimeout(()=>{
+
+heart.remove();
+
+},9000);
+
+}
+
+setInterval(createHeart,120);
+
+// Resize
+
+window.onresize=()=>{
+
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+
+};
+
+
+
+const bgMusic=document.getElementById("bg-music");
+window.addEventListener("load",()=>{
+  bgMusic.play().catch(err=>{
+    console.log("Audio play prevented:",err);
+  });
+});
+
+</script>
+
+</body>
+</html>
